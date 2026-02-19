@@ -1,0 +1,51 @@
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+
+LiquidCrystal_I2C lcd(0x27, 16, 2);   // Change to 0x3F if needed
+
+#define LED 2
+#define BUZZER 3
+#define SENSOR A1
+
+void setup() {
+  Serial.begin(9600);
+
+  lcd.init();              // Use init() instead of begin()
+  lcd.backlight();
+
+  pinMode(LED, OUTPUT);
+  pinMode(BUZZER, OUTPUT);
+  pinMode(SENSOR, INPUT);
+
+  lcd.setCursor(0, 0);
+  lcd.print("Initializing...");
+  delay(2000);
+  lcd.clear();
+}
+
+void loop() {
+  int value = analogRead(SENSOR);
+  Serial.println(value);
+
+  lcd.setCursor(0, 0);
+  lcd.print("Value: ");
+  lcd.print(value);
+  lcd.print("   ");   // Clear extra digits
+
+  if (value > 4000) {
+    digitalWrite(LED, HIGH);
+    tone(BUZZER, 1000);
+    
+    lcd.setCursor(0, 1);
+    lcd.print("GAS Detected!");
+  } 
+  else {
+    digitalWrite(LED, LOW);
+    noTone(BUZZER);
+
+    lcd.setCursor(0, 1);
+    lcd.print("Safe          ");
+  }
+
+  delay(500);
+}
